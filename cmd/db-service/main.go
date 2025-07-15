@@ -2,22 +2,23 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/andrdog/nilchan/internal/db/handler"
 	"github.com/andrdog/nilchan/internal/db/storage"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	if err := storage.InitPostgres(); err != nil {
+	if err := storage.InitGorm(); err != nil {
 		log.Fatalf("failed to connect to postgres: %v", err)
 	}
-	defer storage.DB.Close()
+	handler.AutoMigrate()
 
-	http.HandleFunc("/list", handler.ListTasks)
+	r := gin.Default()
+	r.GET("/list", handler.ListTasks)
 
 	log.Println("db-service started on :8081")
-	if err := http.ListenAndServe(":8081", nil); err != nil {
+	if err := r.Run(":8081"); err != nil {
 		log.Fatal(err)
 	}
 }

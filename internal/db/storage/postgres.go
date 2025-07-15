@@ -1,30 +1,27 @@
 package storage
 
 import (
-	"context"
 	"fmt"
 	"os"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *pgxpool.Pool
+var DB *gorm.DB
 
-func InitPostgres() error {
+func InitGorm() error {
 	dsn := fmt.Sprintf(
-		"postgresql://%s:%s@%s:%s/%s",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		getEnv("POSTGRES_HOST", "localhost"),
 		getEnv("POSTGRES_USER", "user"),
 		getEnv("POSTGRES_PASSWORD", "password"),
-		getEnv("POSTGRES_HOST", "localhost"),
-		getEnv("POSTGRES_PORT", "5432"),
 		getEnv("POSTGRES_DB", "checklist"),
+		getEnv("POSTGRES_PORT", "5432"),
 	)
 	var err error
-	DB, err = pgxpool.New(context.Background(), dsn)
-	if err != nil {
-		return err
-	}
-	return DB.Ping(context.Background())
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	return err
 }
 
 func getEnv(key, fallback string) string {

@@ -1,22 +1,25 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/andrdog/nilchan/internal/db/storage"
+	"github.com/gin-gonic/gin"
 )
 
 type Task struct {
-	ID      int    `json:"id"`
+	ID      uint   `gorm:"primaryKey" json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	Done    bool   `json:"done"`
 }
 
-func ListTasks(w http.ResponseWriter, r *http.Request) {
-	tasks := []Task{
-		{ID: 1, Title: "Пример задачи", Content: "Описание задачи", Done: false},
-		{ID: 2, Title: "Вторая задача", Content: "Что-то сделать", Done: true},
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
+func AutoMigrate() {
+	storage.DB.AutoMigrate(&Task{})
+}
+
+func ListTasks(c *gin.Context) {
+	var tasks []Task
+	storage.DB.Find(&tasks)
+	c.JSON(http.StatusOK, tasks)
 }
