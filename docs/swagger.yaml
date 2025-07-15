@@ -1,0 +1,32 @@
+definitions:
+  internal_db_handler.Task:
+    description: Структура задачи
+    properties:
+      content:
+        type: string
+      done:
+        type: boolean
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /list:
+    get:
+      description: Возвращает все задачи из базы данных
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_db_handler.Task'
+            type: array
+      summary: Получить список задач
+      tags:
+      - tasks
+swagger: "2.0"
